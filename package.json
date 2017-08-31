@@ -31,7 +31,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "pdfjs-dist": "^1.8.532",
+    "pdfjs-dist": "1.8.532",
     "prop-types": ">=15.5",
     "react": ">=15.5",
     "react-dom": ">=15.5"

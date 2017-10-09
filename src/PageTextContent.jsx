@@ -124,12 +124,28 @@ export default class PageTextContent extends Component {
     element.style.transform = `scaleX(${targetWidth / actualWidth}) translateY(${(1 - ascent) * 100}%)`;
   }
 
+  renderHighlightedText = highlightedText => (
+    <span
+      style={{
+        backgroundColor: 'yellow',
+        opacity: 0.4,
+        position: 'relative',
+        top: '-5px',
+      }}
+    >
+      {highlightedText}
+    </span>
+  )
+
   renderTextItem = (textItem, itemIndex) => {
     const [fontSizePx, , , , left, baselineBottom] = textItem.transform;
-    const { scale } = this.props;
+    const { highlight, scale } = this.props;
     // Distance from top of the page to the baseline
     const { fontName } = textItem;
     const fontSize = `${fontSizePx * scale}px`;
+    const textChunks = highlight && highlight.text && highlight.text.length > 0 ?
+      textItem.str.split(new RegExp(highlight.text, 'i')) :
+      [textItem.str];
 
     return (
       <div
@@ -152,7 +168,17 @@ export default class PageTextContent extends Component {
           this.alignTextItem(ref, textItem);
         }}
       >
-        {textItem.str}
+        {
+          textChunks.map((subStr, idx) => {
+            const key = subStr + idx;
+            return (
+              <span key={key}>
+                {subStr}
+                {idx !== textChunks.length - 1 && this.renderHighlightedText(highlight.text)}
+              </span>
+            );
+          })
+        }
       </div>
     );
   }
@@ -191,6 +217,10 @@ export default class PageTextContent extends Component {
 }
 
 PageTextContent.propTypes = {
+  highlight: PropTypes.shape({
+    text: PropTypes.string,
+    occurrence: PropTypes.number,
+  }),
   onGetTextError: PropTypes.func,
   onGetTextSuccess: PropTypes.func,
   page: PropTypes.shape({

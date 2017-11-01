@@ -146,6 +146,7 @@ export default class PageTextContent extends Component {
     const textChunks = highlight && highlight.text && highlight.text.length > 0 ?
       textItem.str.split(new RegExp(highlight.text, 'i')) :
       [textItem.str];
+    const occurrence = (highlight && highlight.occurrence) || 0;
 
     return (
       <div
@@ -171,12 +172,21 @@ export default class PageTextContent extends Component {
         {
           textChunks.map((subStr, idx) => {
             const key = subStr + idx;
-            return (
+            const result = (
               <span key={key}>
                 {subStr}
-                {idx !== textChunks.length - 1 && this.renderHighlightedText(highlight.text)}
+                {idx !== textChunks.length - 1
+                  && occurrence === this.occurrences
+                  && this.renderHighlightedText(highlight.text)}
+                {idx !== textChunks.length - 1
+                  && occurrence !== this.occurrences
+                  && highlight.text}
               </span>
             );
+            if (idx < textChunks.length - 1) {
+              this.occurrences += 1;
+            }
+            return result;
           })
         }
       </div>
@@ -196,6 +206,7 @@ export default class PageTextContent extends Component {
   render() {
     const { rotate } = this.props;
     const { unrotatedViewport: viewport } = this;
+    this.occurrences = 0;
 
     return (
       <div

@@ -67,7 +67,7 @@ var PageTextContent = function (_Component) {
 
     return _ret = (_temp = (_this = (0, _possibleConstructorReturn3.default)(this, (_ref = PageTextContent.__proto__ || (0, _getPrototypeOf2.default)(PageTextContent)).call.apply(_ref, [this].concat(args))), _this), _this.state = {
       textItems: null
-    }, _this.onGetTextSuccess = function (textContent) {
+    }, _this.occurrences = 0, _this.onGetTextSuccess = function (textContent) {
       var textItems = null;
       if (textContent) {
         textItems = textContent.items;
@@ -119,6 +119,7 @@ var PageTextContent = function (_Component) {
 
       var fontSize = fontSizePx * scale + 'px';
       var textChunks = highlight && highlight.text && highlight.text.length > 0 ? textItem.str.split(new RegExp(highlight.text, 'i')) : [textItem.str];
+      var occurrence = highlight && highlight.occurrence || 0;
 
       return _react2.default.createElement(
         'div',
@@ -144,12 +145,17 @@ var PageTextContent = function (_Component) {
         },
         textChunks.map(function (subStr, idx) {
           var key = subStr + idx;
-          return _react2.default.createElement(
+          var result = _react2.default.createElement(
             'span',
             { key: key },
             subStr,
-            idx !== textChunks.length - 1 && _this.renderHighlightedText(highlight.text)
+            idx !== textChunks.length - 1 && occurrence === _this.occurrences && _this.renderHighlightedText(highlight.text),
+            idx !== textChunks.length - 1 && occurrence !== _this.occurrences && highlight.text
           );
+          if (idx < textChunks.length - 1) {
+            _this.occurrences += 1;
+          }
+          return result;
         })
       );
     }, _temp), (0, _possibleConstructorReturn3.default)(_this, _ret);
@@ -188,6 +194,8 @@ var PageTextContent = function (_Component) {
       if (this.state.textItems !== null) {
         this.setState({ textItems: null });
       }
+
+      this.occurrences = 0;
 
       this.runningTask = (0, _util.makeCancellable)(page.getTextContent());
 
@@ -297,6 +305,7 @@ var PageTextContent = function (_Component) {
       var rotate = this.props.rotate;
       var viewport = this.unrotatedViewport;
 
+      this.occurrences = 0;
 
       return _react2.default.createElement(
         'div',

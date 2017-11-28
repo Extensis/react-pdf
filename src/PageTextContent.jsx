@@ -128,10 +128,49 @@ export default class PageTextContent extends Component {
 
   renderTextItem = (textItem, itemIndex) => {
     const [fontSizePx, , , , left, baselineBottom] = textItem.transform;
-    const { scale } = this.props;
+    const { highlight, scale } = this.props;
     // Distance from top of the page to the baseline
     const { fontName } = textItem;
     const fontSize = `${fontSizePx * scale}px`;
+
+    const getDivComponents = (highlightInfo) => {
+      const divComponents = {
+        prefix: textItem.str,
+      };
+
+      if (highlightInfo) {
+        let begin;
+        let end;
+
+        if (itemIndex === highlightInfo.begin.divIdx &&
+          itemIndex === highlightInfo.end.divIdx) {
+          begin = highlightInfo.begin.offset; // Match is fully contained in div
+          end = highlightInfo.end.offset;
+        } else if (itemIndex === highlightInfo.begin.divIdx &&
+          itemIndex < highlightInfo.end.divIdx) {
+          begin = highlightInfo.begin.offset; // Match begins in this div
+          end = textItem.str.length;
+        } else if (itemIndex === highlightInfo.end.divIdx &&
+          itemIndex > highlightInfo.begin.divIdx) {
+          begin = 0; // Match ends in this div
+          end = highlightInfo.end.offset;
+        } else if (itemIndex > highlightInfo.begin.divIdx &&
+          itemIndex < highlightInfo.end.divIdx) {
+          begin = 0; // Match passes completely through this div
+          end = textItem.str.length;
+        }
+
+        if (begin !== undefined && end !== undefined) {
+          divComponents.prefix = textItem.str.substr(0, begin);
+          divComponents.highlightedText = textItem.str.substr(begin, end - begin);
+          divComponents.suffix = textItem.str.substr(end);
+        }
+      }
+
+      return divComponents;
+    };
+
+    const { prefix, highlightedText, suffix } = getDivComponents(highlight);
 
     return (
       <div
@@ -155,7 +194,18 @@ export default class PageTextContent extends Component {
           this.alignTextItem(ref, textItem);
         }}
       >
-        {textItem.str}
+        {prefix}
+        {highlightedText && highlightedText.length &&
+          <span
+            style={{
+              backgroundColor: 'yellow',
+              opacity: 0.4,
+            }}
+          >
+            {highlightedText}
+          </span>
+        }
+        {suffix}
       </div>
     );
   }
@@ -195,6 +245,16 @@ export default class PageTextContent extends Component {
 }
 
 PageTextContent.propTypes = {
+  highlight: PropTypes.shape({
+    begin: PropTypes.shape({
+      divIdx: PropTypes.number.isRequired,
+      offset: PropTypes.number.isRequired,
+    }),
+    end: PropTypes.shape({
+      divIdx: PropTypes.number.isRequired,
+      offset: PropTypes.number.isRequired,
+    }),
+  }),
   onGetTextError: PropTypes.func,
   onGetTextSuccess: PropTypes.func,
   page: pageProp.isRequired,

@@ -189,7 +189,7 @@ export default class Page extends Component {
   }
 
   renderTextLayer() {
-    const { renderTextLayer } = this.props;
+    const { highlight, renderTextLayer } = this.props;
 
     if (!renderTextLayer) {
       return null;
@@ -204,6 +204,7 @@ export default class Page extends Component {
 
     return (
       <PageTextContent
+        highlight={highlight}
         key={`${page.pageIndex}@${scale}/${rotate}_text`}
         onGetTextError={onGetTextError}
         onGetTextSuccess={onGetTextSuccess}
@@ -341,6 +342,16 @@ Page.propTypes = {
     PropTypes.string,
     PropTypes.arrayOf(PropTypes.string),
   ]),
+  highlight: PropTypes.shape({
+    begin: PropTypes.shape({
+      divIdx: PropTypes.number.isRequired,
+      offset: PropTypes.number.isRequired,
+    }),
+    end: PropTypes.shape({
+      divIdx: PropTypes.number.isRequired,
+      offset: PropTypes.number.isRequired,
+    }),
+  }),
   inputRef: PropTypes.func,
   linkService: linkServiceProp,
   onGetTextError: PropTypes.func,

@@ -1,5 +1,4 @@
 .vscode
-build
 node_modules
 sample/build
 sample/package-lock.json

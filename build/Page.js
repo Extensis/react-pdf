@@ -120,7 +120,7 @@ var Page = function (_Component) {
   }, {
     key: 'componentWillUnmount',
     value: function componentWillUnmount() {
-      (0, _util.callIfDefined)(this.props.unregisterPage, this.state.page.pageIndex);
+      (0, _util.callIfDefined)(this.props.unregisterPage, this.pageIndex);
 
       if (this.runningTask && this.runningTask.cancel) {
         this.runningTask.cancel();
